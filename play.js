@@ -34,13 +34,14 @@ function patMatch(pat, word, guesses) {
   }
   
   for (let ii = 0; ii < pchs.length; ++ii) {
-    if (pchs[ii] == '-') {
-      continue;
-    }
-
-    if (pchs[ii] != wchs[ii]) {
-      // TODO: consider guesses
-      return false;
+    for (let guess of guesses) {
+      if (pchs[ii] == '-' && pchs[ii] !== guess) {
+        continue;
+      }
+    
+      if (pchs[ii] != wchs[ii]) {
+        return false;
+      }
     }
   }
 
@@ -56,11 +57,18 @@ function onView(view) {
   console.log("guesses:", Array.from(guesses));
   console.log("moves:", moves);
 
+function smartPick(moves) {
+  for (move of moves) {
+    
+  }
+}
+
   let pats = puzzle.split(" ");
   for (let pat of pats) {
     for (let word of words) {
       if (patMatch(pat, word, guesses)) {
         console.log(`pat [${pat}] could be [${word}]`);
+        smartPick(moves);
         break;
       }
     }

@@ -11,4 +11,4 @@
 
 
 
-**4. How could you improve your strategy do do even better?**
+**4. How could you improve your strategy to do even better?**
