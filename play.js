@@ -1,6 +1,6 @@
 
 
-const name = "student";
+const name = "realGirlGamer";
 const game = "auto-" + name + "-" + randomInt(1000);
 
 const alphabet = new Set("abcdefghijklmnopqrstuvwxyz".split(''));
@@ -14,7 +14,7 @@ socket.connect();
 let channel = socket.channel("game:" + game, {name});
 
 const fs = require('node:fs');
-const zlib = require('zlib');
+const zlib = require('node:zlib');
 let words = zlib.gunzipSync(fs.readFileSync('words.txt.gz')).toString('utf-8').split("\n");
 
 function randomInt(xx) {
@@ -48,6 +48,42 @@ function patMatch(pat, word, guesses) {
   return true;
 }
 
+function letterFrequency(str) {
+  const frequency = {};
+
+  for (let char of str) {
+    frequency[char] = (frequency[char] || 0) + 1
+  }
+
+  return frequency;
+}
+
+function smartPick(moves, frequency, most, pick) {
+  let i = 0;
+  let n = 0;
+  while (i < moves.length) {
+    for (const char in frequency) {
+      if (char !== 'a' && char !== 'e' && char !== 'i' && char !== 'o' && char !== 'u') {
+        if (moves[i] == char && frequency[char] > most)  {
+          most = frequency[char];
+          pick = i;
+          i++;
+          continue;
+        }
+      }
+      else {
+        n++;
+        if (n > moves.length) {
+          n = 0;
+          i++;
+        }
+        continue;
+      }
+    }
+  }
+  return moves[pick];
+}
+
 function onView(view) {
   const puzzle = view.puzzle;
   const guesses = new Set(view.guesses);
@@ -56,25 +92,20 @@ function onView(view) {
   console.log("puzzle:", puzzle);
   console.log("guesses:", Array.from(guesses));
   console.log("moves:", moves);
-
-function smartPick(moves) {
-  for (move of moves) {
-    
-  }
-}
-
+  
+  let matchedWords = "";
   let pats = puzzle.split(" ");
   for (let pat of pats) {
     for (let word of words) {
       if (patMatch(pat, word, guesses)) {
         console.log(`pat [${pat}] could be [${word}]`);
-        smartPick(moves);
+        matchedWords = matchedWords + word;
         break;
       }
     }
   }
 
-  let ch = randomPick(moves);
+  let ch = smartPick(moves, letterFrequency(matchedWords), 0, 0);
   console.log("guess:", ch);
 
   if (moves.length > 0 && puzzle.includes('-')) {
